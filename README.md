@@ -2,6 +2,8 @@
 
 A social media monitoring service for trading desks that aggregates posts from curated X/Twitter accounts focused on commodities, energy, oils, agricultural markets, and biofuels. Posts are automatically enriched with AI-powered sentiment analysis, summaries, tags, and categories.
 
+<img width="3336" height="609" alt="image" src="https://github.com/user-attachments/assets/4f2acb3c-9629-4664-80ce-7698c05a75ea" />
+
 ## What it does
 
 - Fetches tweets from 43+ pre-configured industry accounts every 5 minutes
