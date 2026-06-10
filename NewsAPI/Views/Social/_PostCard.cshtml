@@ -9,7 +9,7 @@
         _ => "bg-secondary-subtle text-secondary"
     };
     var isNegative = Model.Sentiment?.ToLower() == "negative";
-    var cardBorderClass = isNegative ? "border-danger border-start border-4" : "";
+    var cardBorderClass = isNegative ? "border border-danger bg-danger-subtle" : "";
     var avatarUrl = $"https://unavatar.io/twitter/{Model.Account}";
     var postLink = string.IsNullOrWhiteSpace(Model.Link)
         ? $"https://x.com/{Model.Account}"
@@ -35,12 +35,12 @@
         @if (!string.IsNullOrWhiteSpace(Model.Summary))
         {
             <div class="post-summary mb-2">
-                <p class="mb-0 fw-semibold">
+                <p class="mb-1 fw-semibold fs-6">
                     <i class="ri-sparkling-line me-1 text-primary"></i>@Model.Summary
                 </p>
             </div>
         }
-        <p class="mb-2 text-muted">@Model.Text</p>
+        <p class="mb-2 text-muted small">@Model.Text</p>
         @if (Model.Tags?.Count > 0)
         {
             <div class="d-flex flex-wrap gap-1 mt-2">

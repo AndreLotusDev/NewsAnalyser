@@ -91,15 +91,18 @@ function buildPostCard(post) {
         : '';
 
     const summaryHtml = post.summary
-        ? '<p class="text-muted small mb-2">' + esc(post.summary) + '</p>'
+        ? '<p class="fw-semibold fs-6 mb-1"><i class="ri-sparkling-line me-1 text-primary"></i>' + esc(post.summary) + '</p>'
         : '';
 
     const tagsHtml = tagChips
         ? '<div class="d-flex flex-wrap gap-1 mb-2">' + tagChips + '</div>'
         : '';
 
+    const isNegative = (post.sentiment || '').toLowerCase() === 'negative';
+    const cardExtra = isNegative ? ' border border-danger bg-danger-subtle' : '';
+
     const html = [
-        '<div class="card mb-3 post-card" data-post-id="' + esc(post.postId) + '">',
+        '<div class="card mb-3 post-card' + cardExtra + '" data-post-id="' + esc(post.postId) + '">',
         '  <div class="card-body">',
         '    <div class="d-flex align-items-center gap-2 mb-2">',
         '      <img class="avatar avatar-sm rounded-circle"',
@@ -112,8 +115,8 @@ function buildPostCard(post) {
         '      </a>',
         '      ' + sentimentBadge,
         '    </div>',
-        '    <p class="mb-1">' + esc(post.text) + '</p>',
         '    ' + summaryHtml,
+        '    <p class="mb-1 text-muted small">' + esc(post.text) + '</p>',
         '    ' + tagsHtml,
         '    <span class="text-muted small">' + timeAgo + '</span>',
         '  </div>',
