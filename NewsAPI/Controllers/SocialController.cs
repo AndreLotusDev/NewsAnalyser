@@ -12,11 +12,13 @@ public class SocialController : ControllerBase
 {
     private readonly SocialService _service;
     private readonly IBackgroundJobClient _jobs;
+    private readonly IConfiguration _config;
 
-    public SocialController(SocialService service, IBackgroundJobClient jobs)
+    public SocialController(SocialService service, IBackgroundJobClient jobs, IConfiguration config)
     {
         _service = service;
         _jobs = jobs;
+        _config = config;
     }
 
     [HttpGet("posts")]
@@ -47,6 +49,12 @@ public class SocialController : ControllerBase
     [HttpPost("jobs/trigger")]
     public IActionResult TriggerFetch()
     {
+        if (_config.GetValue<bool>("Features:SandboxMode"))
+        {
+            _jobs.Enqueue<FetchPostsJob>(j => j.RunSandboxAsync());
+            return Ok(new { message = "SandboxMode: AI flow enqueued for a random account." });
+        }
+
         _jobs.Enqueue<FetchPostsJob>(j => j.RunAsync());
         return Ok(new { message = "FetchPostsJob enqueued." });
     }

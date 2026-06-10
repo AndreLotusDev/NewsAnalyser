@@ -11,6 +11,7 @@ public class FetchPostsJob
     private readonly IAiEnrichmentService _ai;
     private readonly JobStatusTracker _jobStatus;
     private readonly ILogger<FetchPostsJob> _logger;
+    private readonly IConfiguration _config;
 
     public FetchPostsJob(
         AccountRepository accounts,
@@ -18,7 +19,8 @@ public class FetchPostsJob
         ITwitterApiClient twitter,
         IAiEnrichmentService ai,
         JobStatusTracker jobStatus,
-        ILogger<FetchPostsJob> logger)
+        ILogger<FetchPostsJob> logger,
+        IConfiguration config)
     {
         _accounts = accounts;
         _posts = posts;
@@ -26,10 +28,17 @@ public class FetchPostsJob
         _ai = ai;
         _jobStatus = jobStatus;
         _logger = logger;
+        _config = config;
     }
 
     public async Task RunAsync()
     {
+        if (_config.GetValue<bool>("Features:SandboxMode"))
+        {
+            _logger.LogInformation("FetchPostsJob skipped — SandboxMode is enabled");
+            return;
+        }
+
         _logger.LogInformation("FetchPostsJob started");
 
         var accounts = _accounts.GetAll();
@@ -50,6 +59,21 @@ public class FetchPostsJob
 
         _jobStatus.RecordRun();
         _logger.LogInformation("FetchPostsJob completed");
+    }
+
+    public async Task RunSandboxAsync()
+    {
+        var accounts = _accounts.GetAll();
+        if (accounts.Count == 0)
+        {
+            _logger.LogWarning("SandboxMode: no accounts available");
+            return;
+        }
+
+        var account = accounts[Random.Shared.Next(accounts.Count)];
+        _logger.LogInformation("SandboxMode: running AI flow for @{Handle}", account.Handle);
+        await FetchForAccountAsync(account.Handle);
+        _jobStatus.RecordRun();
     }
 
     private async Task EnrichPendingPostsAsync()
