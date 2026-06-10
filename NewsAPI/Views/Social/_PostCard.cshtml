@@ -1,0 +1,64 @@
+@using NewsAPI.Models
+@model SocialPost
+
+@{
+    var sentimentClass = Model.Sentiment?.ToLower() switch
+    {
+        "positive" => "bg-success-subtle text-success",
+        "negative" => "bg-danger-subtle text-danger",
+        _ => "bg-secondary-subtle text-secondary"
+    };
+    var isNegative = Model.Sentiment?.ToLower() == "negative";
+    var cardBorderClass = isNegative ? "border-danger border-start border-4" : "";
+    var avatarUrl = $"https://unavatar.io/twitter/{Model.Account}";
+    var postLink = string.IsNullOrWhiteSpace(Model.Link)
+        ? $"https://x.com/{Model.Account}"
+        : Model.Link;
+}
+
+<div class="card mb-3 post-card @cardBorderClass" data-post-id="@Model.PostId">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <img class="avatar avatar-sm rounded-circle"
+                 src="@avatarUrl"
+                 alt="@Model.Account"
+                 onerror="this.src='/fila-assets/images/user1.jpg'">
+            <a class="fw-semibold text-dark text-decoration-none"
+               href="@postLink" target="_blank" rel="noopener">
+                @@@Model.Account
+            </a>
+            @if (!string.IsNullOrWhiteSpace(Model.Sentiment))
+            {
+                <span class="badge @sentimentClass ms-auto">@Model.Sentiment</span>
+            }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Summary))
+        {
+            <div class="post-summary mb-2">
+                <p class="mb-0 fw-semibold">
+                    <i class="ri-sparkling-line me-1 text-primary"></i>@Model.Summary
+                </p>
+            </div>
+        }
+        <p class="mb-2 text-muted">@Model.Text</p>
+        @if (Model.Tags?.Count > 0)
+        {
+            <div class="d-flex flex-wrap gap-1 mt-2">
+                @foreach (var tag in Model.Tags)
+                {
+                    <span class="badge rounded-pill bg-light text-dark border tag-chip"
+                          data-tag="@tag">@tag</span>
+                }
+            </div>
+        }
+        <div class="d-flex align-items-center justify-content-between mt-2">
+            <span class="text-muted small">@Model.Timestamp.ToString("g")</span>
+            <a href="@postLink" target="_blank" rel="noopener"
+               class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 post-link-btn"
+               title="View on X">
+                <i class="ri-twitter-x-line"></i>
+                <span class="small">View on X</span>
+            </a>
+        </div>
+    </div>
+</div>

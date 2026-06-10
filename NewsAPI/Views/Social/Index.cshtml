@@ -1,0 +1,93 @@
+@{
+    ViewBag.PageTitle = "Social News";
+    ViewBag.ActivePage = "News";
+}
+
+<!-- Page header -->
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+    <div class="d-flex align-items-center gap-3">
+        <h3 class="mb-0">Social News</h3>
+        <span id="health-dot" class="status-indicator status-offline" title="Feed status"></span>
+        <small id="health-text" class="text-muted">Checking feed…</small>
+    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb align-items-center mb-0 lh-1">
+            <li class="breadcrumb-item">
+                <a href="/news" class="d-flex align-items-center text-decoration-none">
+                    <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                    <span class="text-body fs-14">Home</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <span class="text-secondary">Social News</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<!-- New posts alert -->
+<div id="new-posts-alert" class="alert alert-info alert-dismissible d-none mb-3" role="alert">
+    <span id="new-posts-count"></span> —
+    <a href="#" id="scroll-to-top-link" class="alert-link">click to scroll up</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<!-- Filters -->
+<div class="filter-card mb-4">
+    <div class="filter-row">
+
+        <!-- Accounts dropdown -->
+        <div class="filter-group">
+            <span class="filter-label">Accounts</span>
+            <div class="filter-multiselect" id="accounts-multiselect">
+                <button class="filter-trigger" type="button" id="accounts-toggle" aria-expanded="false">
+                    <i class="ri-user-3-line"></i>
+                    <span id="accounts-badge">All accounts</span>
+                    <i class="ri-arrow-down-s-line filter-chevron"></i>
+                </button>
+                <div class="filter-dropdown" id="accounts-dropdown" hidden>
+                    <div class="filter-search-wrap">
+                        <i class="ri-search-line"></i>
+                        <input type="text" id="accounts-search" placeholder="Search accounts…" autocomplete="off">
+                    </div>
+                    <div class="filter-options" id="accounts-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-sep"></div>
+
+        <!-- Category pills -->
+        <div class="filter-group filter-group-grow">
+            <span class="filter-label">Category</span>
+            <div class="cat-pills" id="category-pills">
+                <button class="cat-pill cat-pill-active" data-cat="">All</button>
+            </div>
+        </div>
+
+        <!-- Reset -->
+        <button id="clear-filters" class="filter-reset">
+            <i class="ri-close-circle-line"></i>
+            <span>Reset</span>
+        </button>
+    </div>
+
+    <div id="active-tag-filters" class="tag-filter-row"></div>
+</div>
+
+<!-- Post feed -->
+<div id="post-feed"></div>
+
+<!-- Loading indicator -->
+<div id="feed-loading" class="text-center py-5 text-muted">
+    <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+    Loading posts…
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="/css/social-feed.css">
+}
+
+@section Scripts {
+    <script src="/js/social-feed.js"></script>
+}

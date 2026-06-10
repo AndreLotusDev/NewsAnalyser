@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="/fila-assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="/fila-assets/css/simplebar.css">
+    <link rel="stylesheet" href="/fila-assets/css/remixicon.css">
+    <link rel="stylesheet" href="/fila-assets/css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@@20..48,100..700,0..1,-50..200">
+
+    @RenderSection("Styles", required: false)
+
+    <title>@(ViewBag.PageTitle ?? "Market Pulse") — Social Monitor</title>
+</head>
+<body class="bg-body-bg">
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader">
+            <div class="waviy position-relative">
+                <span class="d-inline-block">M</span>
+                <span class="d-inline-block">P</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-area" id="sidebar-area">
+        <div class="logo position-relative d-flex align-items-center justify-content-between">
+            <a href="/news" class="d-block text-decoration-none position-relative">
+                <img src="/fila-assets/images/logo-icon.png" alt="logo">
+                <span class="logo-text text-secondary fw-semibold">Market Pulse</span>
+            </a>
+            <button class="sidebar-burger-menu-close bg-transparent py-3 border-0 opacity-0 z-n1 position-absolute top-50 end-0 translate-middle-y" id="sidebar-burger-menu-close">
+                <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px; transform: rotate(45deg);"></span>
+                <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px; transform: rotate(-45deg);"></span>
+            </button>
+            <button class="sidebar-burger-menu bg-transparent p-0 border-0" id="sidebar-burger-menu">
+                <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px;"></span>
+                <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px; margin: 6px 0;"></span>
+                <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px;"></span>
+            </button>
+        </div>
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu active" data-simplebar>
+            <ul class="menu-inner">
+                <li class="menu-title small text-uppercase">
+                    <span class="menu-title-text">MAIN</span>
+                </li>
+
+                <li class="menu-item @(ViewBag.ActivePage == "News" ? "active" : "")">
+                    <a href="/news" class="menu-link @(ViewBag.ActivePage == "News" ? "active" : "")">
+                        <span class="material-symbols-outlined menu-icon">newspaper</span>
+                        <span class="title">News</span>
+                    </a>
+                </li>
+
+                <li class="menu-title small text-uppercase">
+                    <span class="menu-title-text">ADMIN</span>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/hangfire" class="menu-link" target="_blank">
+                        <span class="material-symbols-outlined menu-icon">schedule</span>
+                        <span class="title">Job Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/swagger" class="menu-link" target="_blank">
+                        <span class="material-symbols-outlined menu-icon">api</span>
+                        <span class="title">API Docs</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="main-content d-flex flex-column">
+
+            <!-- Header -->
+            <header class="header-area bg-white mb-4 rounded-10 border border-white" id="header-area">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="left-header-content">
+                            <ul class="d-flex align-items-center ps-0 mb-0 list-unstyled justify-content-center justify-content-md-start">
+                                <li class="d-xl-none">
+                                    <button class="header-burger-menu bg-transparent p-0 border-0 position-relative top-3" id="header-burger-menu">
+                                        <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px;"></span>
+                                        <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px; margin: 6px 0;"></span>
+                                        <span class="border-1 d-block for-dark-burger" style="border-bottom: 1px solid #475569; height: 1px; width: 25px;"></span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <span class="fw-semibold text-secondary fs-16 ms-2">Market Pulse Social Monitor</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="right-header-content mt-3 mt-md-0">
+                            <ul class="d-flex align-items-center justify-content-center justify-content-md-end ps-0 mb-0 list-unstyled">
+                                <li class="header-right-item light-dark-item">
+                                    <div class="light-dark">
+                                        <button class="switch-toggle dark-btn p-0 bg-transparent lh-0 border-0" id="switch-toggle">
+                                            <span class="dark"><i class="material-symbols-outlined">dark_mode</i></span>
+                                            <span class="light"><i class="material-symbols-outlined">light_mode</i></span>
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="main-content-container overflow-hidden">
+                @RenderBody()
+            </div>
+
+            <div class="flex-grow-1"></div>
+
+            <!-- Footer -->
+            <footer class="footer-area bg-white text-center rounded-10 rounded-bottom-0">
+                <p class="fs-16 text-body">© <span class="text-secondary">Market Pulse</span> Social Monitor</p>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- Fila JS -->
+    <script src="/fila-assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/fila-assets/js/simplebar.min.js"></script>
+    <script src="/fila-assets/js/sidebar-menu.js"></script>
+    <script src="/fila-assets/js/swiper-bundle.min.js"></script>
+    <script src="/fila-assets/js/clipboard.min.js"></script>
+    <script src="/fila-assets/js/custom/custom.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
