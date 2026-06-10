@@ -2,23 +2,48 @@ const state = {
     knownPostIds: new Set(),
     filters: { accounts: [], tags: [], categories: [] },
     lastPostId: null,
-    lastUpdated: null
+    lastUpdated: null,
+    currentPage: 1,
+    totalPosts: 0,
+    pageSize: 20
 };
 
 let newPostsBuffer = 0;
 
 $(document).ready(function () {
+    loadCategories();
     loadInitialPosts();
     setInterval(fetchNewPosts, 30000);
     pollHealth();
     setInterval(pollHealth, 60000);
     bindFilterHandlers();
+
+    $('#fpn-first').on('click', function () {
+        if (state.currentPage > 1) goToPage(1);
+    });
+    $('#fpn-prev').on('click', function () {
+        if (state.currentPage > 1) goToPage(state.currentPage - 1);
+    });
+    $('#fpn-next').on('click', function () {
+        const totalPages = Math.ceil(state.totalPosts / state.pageSize);
+        if (state.currentPage < totalPages) goToPage(state.currentPage + 1);
+    });
+    $('#fpn-last').on('click', function () {
+        const totalPages = Math.ceil(state.totalPosts / state.pageSize);
+        if (state.currentPage < totalPages) goToPage(totalPages);
+    });
 });
 
 // ─── API calls ────────────────────────────────────────────────────────────────
 
-function apiFetchPosts(afterPostId, callback) {
-    const parts = ['pageSize=50'];
+function loadCategories() {
+    $.getJSON('/api/categories', function (cats) {
+        populateCategoryOptions(cats);
+    });
+}
+
+function apiFetchPosts({ page = 1, afterPostId = null } = {}, callback) {
+    const parts = ['pageSize=' + state.pageSize, 'page=' + page];
     state.filters.accounts.forEach(a => parts.push('accounts=' + encodeURIComponent(a)));
     state.filters.tags.forEach(t => parts.push('tags=' + encodeURIComponent(t)));
     state.filters.categories.forEach(c => parts.push('categories=' + encodeURIComponent(c)));
@@ -27,29 +52,52 @@ function apiFetchPosts(afterPostId, callback) {
 }
 
 function loadInitialPosts() {
+    state.lastPostId = null;
+    goToPage(1);
+}
+
+function goToPage(page) {
     $('#feed-loading').show();
-    apiFetchPosts(null, function (data) {
-        $('#post-feed').empty();
-        state.knownPostIds.clear();
-        state.lastPostId = null;
+    $('#fixed-page-nav').hide();
+    $('#post-feed').empty();
+    state.knownPostIds.clear();
+    apiFetchPosts({ page: page }, function (data) {
+        state.currentPage = page;
+        state.totalPosts = data.total;
         renderPosts(data.items, false);
+        renderPaginationFooter();
         $('#feed-loading').hide();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }).fail(function () {
         $('#feed-loading').html('<span class="text-danger">Failed to load posts. Will retry shortly.</span>');
     });
 }
 
+function renderPaginationFooter() {
+    const totalPages = Math.ceil(state.totalPosts / state.pageSize);
+    const cur = state.currentPage;
+    const $fpn = $('#fixed-page-nav');
+
+    if (totalPages > 1) {
+        $('#fpn-label').text(cur + ' / ' + totalPages);
+        $('#fpn-first').prop('disabled', cur === 1);
+        $('#fpn-prev').prop('disabled', cur === 1);
+        $('#fpn-next').prop('disabled', cur === totalPages);
+        $('#fpn-last').prop('disabled', cur === totalPages);
+        $fpn.show();
+    } else {
+        $fpn.hide();
+    }
+}
+
 function fetchNewPosts() {
     if (!state.lastPostId) return;
-    apiFetchPosts(state.lastPostId, function (data) {
+    apiFetchPosts({ afterPostId: state.lastPostId }, function (data) {
         const fresh = (data.items || []).filter(p => !state.knownPostIds.has(p.postId));
         if (!fresh.length) return;
-        const isScrolledDown = $(window).scrollTop() > 200;
-        renderPosts(fresh, true);
-        if (isScrolledDown) {
-            newPostsBuffer += fresh.length;
-            showNewPostsBanner(newPostsBuffer);
-        }
+        state.totalPosts += fresh.length;
+        newPostsBuffer += fresh.length;
+        showNewPostsBanner(newPostsBuffer);
     });
 }
 
@@ -83,15 +131,23 @@ function buildPostCard(post) {
     const tagChips = (post.tags || []).map(function (tag) {
         const isActive = state.filters.tags.indexOf(tag) !== -1;
         const cls = isActive ? 'bg-primary text-white' : 'bg-secondary-subtle text-secondary-emphasis';
-        return '<span class="badge rounded-pill ' + cls + ' tag-chip" data-tag="' + esc(tag) + '">' + esc(tag) + '</span>';
+        return '<span class="badge rounded-pill fs-6 ' + cls + ' tag-chip" data-tag="' + esc(tag) + '">' + esc(tag) + '</span>';
     }).join('');
 
     const sentimentBadge = post.sentiment
         ? '<span class="badge ' + sentimentClass + ' ms-auto">' + esc(post.sentiment) + '</span>'
         : '';
 
+    const observationHtml = post.newsObservation
+        ? '<p class="mb-0 fs-5 text-warning-emphasis"><i class="ri-line-chart-line me-1 text-warning"></i>' + esc(post.newsObservation) + '</p>'
+        : '';
+
+    const iconsHtml = (post.icons && post.icons.length)
+        ? '<span class="post-icons me-2" style="font-size:1.5rem;line-height:1;">' + post.icons.join(' ') + '</span>'
+        : '';
+
     const summaryHtml = post.summary
-        ? '<p class="fw-semibold fs-6 mb-1"><i class="ri-sparkling-line me-1 text-primary"></i>' + esc(post.summary) + '</p>'
+        ? '<div class="post-summary mb-2">' + iconsHtml + '<p class="fw-semibold fs-4 mb-1"><i class="ri-sparkling-line me-1 text-primary"></i>' + esc(post.summary) + '</p>' + observationHtml + '</div>'
         : '';
 
     const tagsHtml = tagChips
@@ -105,20 +161,20 @@ function buildPostCard(post) {
         '<div class="card mb-3 post-card' + cardExtra + '" data-post-id="' + esc(post.postId) + '">',
         '  <div class="card-body">',
         '    <div class="d-flex align-items-center gap-2 mb-2">',
-        '      <img class="avatar avatar-sm rounded-circle"',
+        '      <img class="avatar rounded-circle" style="width:48px;height:48px;object-fit:cover;"',
         '           src="' + avatarUrl + '"',
         '           alt="' + esc(post.account) + '"',
         '           onerror="this.src=\'/fila-assets/images/user1.jpg\'">',
-        '      <a class="fw-semibold text-dark text-decoration-none"',
+        '      <a class="fw-semibold fs-5 text-dark text-decoration-none"',
         '         href="' + esc(postLink) + '" target="_blank" rel="noopener">',
         '        @' + esc(post.account),
         '      </a>',
         '      ' + sentimentBadge,
         '    </div>',
         '    ' + summaryHtml,
-        '    <p class="mb-1 text-muted small">' + esc(post.text) + '</p>',
+        '    <p class="mb-1 text-muted fs-4">' + esc(post.text) + '</p>',
         '    ' + tagsHtml,
-        '    <span class="text-muted small">' + timeAgo + '</span>',
+        '    <span class="text-muted fs-6">' + timeAgo + '</span>',
         '  </div>',
         '</div>'
     ].join('\n');
@@ -217,12 +273,34 @@ function bindFilterHandlers() {
         loadInitialPosts();
     });
 
-    // Category pills
+    // Category search
+    $('#cat-search').on('input', function () {
+        const q = $(this).val().toLowerCase().trim();
+        $('#category-pills .cat-pill').each(function () {
+            if ($(this).data('cat') === '') { $(this).show(); return; }
+            $(this).toggle(!q || $(this).text().toLowerCase().includes(q));
+        });
+    });
+
+    // Category pills — multi-select toggle
     $(document).on('click', '.cat-pill', function () {
         const cat = $(this).data('cat');
-        state.filters.categories = cat ? [cat] : [];
-        $('.cat-pill').removeClass('cat-pill-active');
-        $(this).addClass('cat-pill-active');
+        if (cat === '') {
+            state.filters.categories = [];
+            $('.cat-pill').removeClass('cat-pill-active');
+            $(this).addClass('cat-pill-active');
+        } else {
+            const idx = state.filters.categories.indexOf(cat);
+            if (idx === -1) {
+                state.filters.categories.push(cat);
+                $(this).addClass('cat-pill-active');
+            } else {
+                state.filters.categories.splice(idx, 1);
+                $(this).removeClass('cat-pill-active');
+            }
+            // "All" active only when nothing selected
+            $('.cat-pill[data-cat=""]').toggleClass('cat-pill-active', state.filters.categories.length === 0);
+        }
         loadInitialPosts();
     });
 
@@ -244,9 +322,9 @@ function bindFilterHandlers() {
 
     $('#scroll-to-top-link').on('click', function (e) {
         e.preventDefault();
-        $('html, body').animate({ scrollTop: 0 }, 300);
         $('#new-posts-alert').addClass('d-none');
         newPostsBuffer = 0;
+        goToPage(1);
     });
 
     $(document).on('closed.bs.alert', '#new-posts-alert', function () {
@@ -305,6 +383,8 @@ function populateCategoryOptions(categories) {
         const $pill = $('<button class="cat-pill">').attr('data-cat', cat).text(cat);
         $('#category-pills').append($pill);
     });
+    const total = $('#category-pills .cat-pill').length;
+    $('#cat-search-wrap').prop('hidden', total <= 7);
 }
 
 function updateAccountsBadge() {

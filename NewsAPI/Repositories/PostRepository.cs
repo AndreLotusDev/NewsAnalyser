@@ -5,8 +5,13 @@ namespace NewsAPI.Repositories;
 public class PostRepository
 {
     private readonly LiteDbContext _db;
+    private readonly CategoryRepository _categories;
 
-    public PostRepository(LiteDbContext db) => _db = db;
+    public PostRepository(LiteDbContext db, CategoryRepository categories)
+    {
+        _db = db;
+        _categories = categories;
+    }
 
     public PagedResult<SocialPost> GetPosts(
         List<string>? accounts,
@@ -67,5 +72,18 @@ public class PostRepository
     public List<SocialPost> GetUnenriched() =>
         _db.Posts.Query().ToList().Where(p => string.IsNullOrEmpty(p.Summary)).ToList();
 
-    public void Upsert(SocialPost post) => _db.Posts.Upsert(post);
+    public void Upsert(SocialPost post)
+    {
+        if (post.Categories?.Count > 0)
+            post.Categories = post.Categories
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Select(CategoryRepository.Normalize)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        _db.Posts.Upsert(post);
+
+        if (post.Categories?.Count > 0)
+            _categories.Sync(post.Categories);
+    }
 }

@@ -29,6 +29,7 @@ var connectionString = new ConnectionString(dbPath) { Connection = ConnectionTyp
 builder.Services.AddSingleton(new LiteDatabase(connectionString));
 builder.Services.AddSingleton<LiteDbContext>();
 
+builder.Services.AddSingleton<CategoryRepository>();
 builder.Services.AddSingleton<PostRepository>();
 builder.Services.AddSingleton<AccountRepository>();
 builder.Services.AddSingleton<JobStatusTracker>();
@@ -71,6 +72,15 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 });
 
 RecurringJob.AddOrUpdate<FetchPostsJob>("fetch-posts", j => j.RunAsync(), "*/5 * * * *");
+
+// Seed categories table from posts already in the database
+var dbCtx = app.Services.GetRequiredService<LiteDbContext>();
+var catRepo = app.Services.GetRequiredService<CategoryRepository>();
+var seedCats = dbCtx.Posts.Query().ToList()
+    .SelectMany(p => p.Categories ?? [])
+    .Where(c => !string.IsNullOrWhiteSpace(c))
+    .Distinct(StringComparer.OrdinalIgnoreCase);
+catRepo.Sync(seedCats);
 
 var accountRepo = app.Services.GetRequiredService<AccountRepository>();
 if (accountRepo.GetAll().Count == 0)

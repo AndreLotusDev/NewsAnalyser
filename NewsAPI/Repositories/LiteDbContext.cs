@@ -10,6 +10,7 @@ public class LiteDbContext : IDisposable
     public ILiteCollection<SocialPost> Posts { get; }
     public ILiteCollection<TrackedAccount> TrackedAccounts { get; }
     public ILiteCollection<JobStatus> JobStatuses { get; }
+    public ILiteCollection<Category> Categories { get; }
 
     public LiteDbContext(LiteDatabase db)
     {
@@ -23,6 +24,9 @@ public class LiteDbContext : IDisposable
         TrackedAccounts.EnsureIndex(a => a.Handle, unique: true);
 
         JobStatuses = _db.GetCollection<JobStatus>("job_statuses");
+
+        Categories = _db.GetCollection<Category>("categories");
+        Categories.EnsureIndex(c => c.Name, unique: true);
     }
 
     public void Dispose() => _db.Dispose();

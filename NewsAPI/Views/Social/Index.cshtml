@@ -60,8 +60,14 @@
         <!-- Category pills -->
         <div class="filter-group filter-group-grow">
             <span class="filter-label">Category</span>
-            <div class="cat-pills" id="category-pills">
-                <button class="cat-pill cat-pill-active" data-cat="">All</button>
+            <div class="cat-filter-wrap">
+                <div class="cat-search-wrap" id="cat-search-wrap" hidden>
+                    <i class="ri-search-line"></i>
+                    <input type="text" id="cat-search" placeholder="Filter categories…" autocomplete="off">
+                </div>
+                <div class="cat-pills" id="category-pills">
+                    <button class="cat-pill cat-pill-active" data-cat="">All</button>
+                </div>
             </div>
         </div>
 
@@ -82,6 +88,23 @@
 <div id="feed-loading" class="text-center py-5 text-muted">
     <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
     Loading posts…
+</div>
+
+<!-- Fixed floating page nav -->
+<div id="fixed-page-nav" class="fixed-page-nav" style="display:none;">
+    <button id="fpn-first" class="fpn-btn" aria-label="First page">
+        <i class="ri-arrow-left-double-line"></i>
+    </button>
+    <button id="fpn-prev" class="fpn-btn" aria-label="Previous page">
+        <i class="ri-arrow-left-s-line"></i>
+    </button>
+    <span id="fpn-label" class="fpn-label">1 / 1</span>
+    <button id="fpn-next" class="fpn-btn" aria-label="Next page">
+        <i class="ri-arrow-right-s-line"></i>
+    </button>
+    <button id="fpn-last" class="fpn-btn" aria-label="Last page">
+        <i class="ri-arrow-right-double-line"></i>
+    </button>
 </div>
 
 @section Styles {

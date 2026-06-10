@@ -11,7 +11,9 @@ public class SocialPost
     public DateTime Timestamp { get; set; }
     public string Sentiment { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
+    public string NewsObservation { get; set; } = string.Empty;
     public List<string> Tags { get; set; } = [];
     public List<string> Categories { get; set; } = [];
+    public List<string> Icons { get; set; } = [];
     public string Link { get; set; } = string.Empty;
 }

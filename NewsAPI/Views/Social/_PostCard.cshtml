@@ -19,45 +19,56 @@
 <div class="card mb-3 post-card @cardBorderClass" data-post-id="@Model.PostId">
     <div class="card-body">
         <div class="d-flex align-items-center gap-2 mb-2">
-            <img class="avatar avatar-sm rounded-circle"
+            <img class="avatar rounded-circle"
+                 style="width:56px;height:56px;object-fit:cover;"
                  src="@avatarUrl"
                  alt="@Model.Account"
                  onerror="this.src='/fila-assets/images/user1.jpg'">
-            <a class="fw-semibold text-dark text-decoration-none"
+            <a class="fw-semibold fs-4 text-dark text-decoration-none"
                href="@postLink" target="_blank" rel="noopener">
                 @@@Model.Account
             </a>
             @if (!string.IsNullOrWhiteSpace(Model.Sentiment))
             {
-                <span class="badge @sentimentClass ms-auto">@Model.Sentiment</span>
+                <span class="badge fs-5 @sentimentClass ms-auto">@Model.Sentiment</span>
             }
         </div>
         @if (!string.IsNullOrWhiteSpace(Model.Summary))
         {
             <div class="post-summary mb-2">
-                <p class="mb-1 fw-semibold fs-6">
+                @if (Model.Icons?.Count > 0)
+                {
+                    <span class="post-icons me-2" style="font-size:2rem; line-height:1;">@string.Join(" ", Model.Icons)</span>
+                }
+                <p class="mb-1 fw-semibold fs-3">
                     <i class="ri-sparkling-line me-1 text-primary"></i>@Model.Summary
                 </p>
+                @if (!string.IsNullOrWhiteSpace(Model.NewsObservation))
+                {
+                    <p class="mb-0 fs-4 text-warning-emphasis">
+                        <i class="ri-line-chart-line me-1 text-warning"></i>@Model.NewsObservation
+                    </p>
+                }
             </div>
         }
-        <p class="mb-2 text-muted small">@Model.Text</p>
+        <p class="mb-2 text-muted fs-4">@Model.Text</p>
         @if (Model.Tags?.Count > 0)
         {
             <div class="d-flex flex-wrap gap-1 mt-2">
                 @foreach (var tag in Model.Tags)
                 {
-                    <span class="badge rounded-pill bg-light text-dark border tag-chip"
+                    <span class="badge rounded-pill fs-5 bg-light text-dark border tag-chip"
                           data-tag="@tag">@tag</span>
                 }
             </div>
         }
         <div class="d-flex align-items-center justify-content-between mt-2">
-            <span class="text-muted small">@Model.Timestamp.ToString("g")</span>
+            <span class="text-muted fs-5">@Model.Timestamp.ToString("g")</span>
             <a href="@postLink" target="_blank" rel="noopener"
-               class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 post-link-btn"
+               class="btn btn-outline-secondary d-flex align-items-center gap-1 post-link-btn"
                title="View on X">
                 <i class="ri-twitter-x-line"></i>
-                <span class="small">View on X</span>
+                <span class="fs-5">View on X</span>
             </a>
         </div>
     </div>
